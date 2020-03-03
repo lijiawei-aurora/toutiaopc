@@ -1,7 +1,7 @@
 <template>
 <!-- 外层容器 -->
   <el-container>
-    <el-aside>
+    <el-aside style="width:260px">
       <!-- 左侧导航区域 -->
       <layout-aside></layout-aside>
     </el-aside>
@@ -28,4 +28,5 @@ export default {
 </script>
 
 <style>
+
 </style>

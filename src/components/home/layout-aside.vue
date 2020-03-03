@@ -1,5 +1,5 @@
 <template>
-<div class="layout-aside">
+<div class="layout-aside" style="width:260px">
     <div class="title">
         <img src="../../assets/img/logo_admin.png" alt="">
     </div>
@@ -66,8 +66,6 @@ export default {
     .el-menu{
         border-right:none
     }
-    .el-aside{
-        width:230px;
-    }
+
 }
 </style>

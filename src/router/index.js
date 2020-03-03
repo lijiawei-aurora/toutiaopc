@@ -2,6 +2,7 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '@/views/home'
 import Login from '@/views/login'
+
 import DefaultHome from '@/views/home/default_home'
 // 简写形式，相当于 /src/views/home/index.vue
 Vue.use(VueRouter)
