@@ -5,7 +5,7 @@ import '@/permission'
 import ElementUI from 'element-ui' // 引入模块
 import 'element-ui/lib/theme-chalk/index.css' // 引入样式
 import '@/styles/index.less'
-import axios from 'axios'
+import axios from '@/utils/request' // 引入自己封装的axios request.js
 import Components from '@/components'
 Vue.config.productionTip = false
 Vue.use(Components)
