@@ -1,5 +1,5 @@
 <template>
-<el-card>
+<el-card v-loading="loading">
     <!-- 放置一个面包屑  slot=header 表示以下内容会作为具名插槽给card的hearder部分 -->
     <bread-crumb slot="header">
 <template slot="title">评论管理</template>
@@ -29,7 +29,7 @@
   <!-- 分页组件 current-page 当前页码 total 总数 page-size每页多少条-->
   <el-pagination background layout="prev,pager,next"
    :page-size="page.pageSize"
-   :current-page="currentPage"
+   :current-page="page.currentPage"
    :total="page.total"
    @current-change="changePage"></el-pagination>
 </el-row>
@@ -46,7 +46,8 @@ export default {
         total: 0, // 默认总条数
         currentPage: 1, // 默认页码
         pageSize: 10 // 每页的显示的条数
-      }// 放置分页参数
+      }, // 放置分页参数
+      loading: true // 控制loading遮罩层显示与隐藏
     }
   },
   methods: {
@@ -67,8 +68,10 @@ export default {
       }).then(result => {
         this.list = result.data.results
         this.page.total = result.data.total_count // 将总数赋给total
+        this.loading = false
       })
     },
+
     // formatterBool (row, column, cellValue, index) {
     //   //   row 行的数据   column 为列的信息
     //   // cellValue 为当前单元格的值   index 代表当前的索引

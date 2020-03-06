@@ -21,11 +21,14 @@ const routes = [{
     path: '', // 为空 表示二级路由的默认组件
     component: DefaultHome // 二级路由默认组件
   },
-  {
+  { // 评论管理
     path: 'comment', // 不加/ 为拼接路由  /home/comment
-    // 按需加载
+    // 按需加载 只加载一次
     component: () => import('@/views/comment')
 
+  }, { // 素材管理
+    path: 'material',
+    component: () => import('@/views/material')
   }]
 }, {
   path: '/login',
