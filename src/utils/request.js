@@ -1,7 +1,15 @@
 // 二次封装axios
 // 配置拦截器及其他内容
+// 引入第三方处理大数字的包
+import JSONBig from 'json-bigint'
 import router from '@/router'
-import axios from 'axios' // 将axios引入
+import axios from 'axios'
+// 用json-bigint替换原来的json
+// 用于处理id超过大数字，转换不正确的问题
+axios.defaults.transfromResponse = [function (data) {
+  // 判断data是否为空
+  return data ? JSONBig.parse(data) : {}
+}] // 将axios引入
 // 配置axios的请求头地址
 axios.defaults.baseURL = 'http://ttapi.research.itcast.cn/mp/v1_0/'
 // 注册请求拦截器，两个参数为两个回调函数，成功执行第一个，失败执行第二个

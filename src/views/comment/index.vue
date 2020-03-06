@@ -70,7 +70,9 @@ export default {
           method: 'put', // 请求类型
           // query参数
           params: {
-            article_id: row.id // 要更改状态的文章id
+            // id的数字太大会自动转换
+            // 将BigNumber转为字符串
+            article_id: row.id.toString() // 要更改状态的文章id
           },
           data: {
             //  body参数
