@@ -88,7 +88,7 @@ export default {
         }).then(result => {
           // console.log(result.data.data.token)
           // 放到前端的缓存中
-          window.localStorage.setItem('user-token', result.data.data.token)
+          window.localStorage.setItem('user-token', result.data.token)
 
           this.$router.push('/home')
 

@@ -64,7 +64,7 @@ export default {
       }, // 放置请求头参数
       methods: 'get' // 默认为get方法，可省略
     }).then(result => {
-      this.userInfo = result.data.data
+      this.userInfo = result.data
     })
   }
 }

@@ -1,12 +1,9 @@
 <template>
-<!-- 二级路由默认容器 -->
-<div class="app">
-<div class="demo-image__lazy" >
-  <el-image v-for="url in urls" :key="url" :src="url" lazy ></el-image>
-</div>
-</div>
-<!-- <div>woshierjiluyou</div> -->
+  <div class="demo-image__lazy">
+    <el-image v-for="url in urls" :key="url" :src="url" lazy></el-image>
+  </div>
 </template>
+
 <script>
 export default {
   data () {
@@ -22,16 +19,21 @@ export default {
       ]
     }
   }
-
 }
-
 </script>
 
-<style lang="less" scoped>
-// .box{
-//   width:800px;
-//   height:500px;
-//   overflow:auto;
-//   margin:30px auto
-// }
+<style>
+.demo-image__lazy{
+  padding:6px;
+  height:calc(100vh - 140px);
+  overflow:auto;
+}
+.demo-image__lazy .el-image{
+  display: block;
+  height: 100%;
+  margin-bottom: 10px;
+  position: relative;
+  overflow: hidden;
+}
+
 </style>
