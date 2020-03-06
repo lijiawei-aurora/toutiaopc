@@ -2,12 +2,15 @@
 // 配置拦截器及其他内容
 // 引入第三方处理大数字的包
 import JSONBig from 'json-bigint'
+// import JSONBig from 'json-bigint'
 import router from '@/router'
 import axios from 'axios'
 // 用json-bigint替换原来的json
 // 用于处理id超过大数字，转换不正确的问题
-axios.defaults.transfromResponse = [function (data) {
-  // 判断data是否为空
+
+axios.defaults.transformResponse = [function (data) {
+//   // 判断data是否为空 data 是响应回来的字符串
+//   // console.log(data[0])
   return data ? JSONBig.parse(data) : {}
 }] // 将axios引入
 // 配置axios的请求头地址
