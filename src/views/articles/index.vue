@@ -32,13 +32,17 @@
         <span>共找到1000条符合条件的内容</span>
       </el-row>
    <!-- 列表内容 -->
-   <div class="article-item">
+     <!-- 此时的item.id 为bigNumber类型  这里的key只能是字符串或number类型-->
+   <div class="article-item" v-for="item in list" :key="item.id.toString()">
        <div class="left">
-           <img src="" alt="">
-           <div class="inof">
-               <span></span>
-               <el-tag class="status">文章状态</el-tag>
-               <span class="date"></span>
+           <!-- 若获取的数据有图片则显示获取到的，若没有则显示默认的图片
+           此处的defaultImg是一个变量，这里不能直接使用一个地址 -->
+           <img :src="item.cover.images.length>0?item.cover.images[0]:defaultImg" alt="">
+           <div class="info">
+               <span>{{item.title}}</span>
+               <!-- 使用过滤器改变显示的格式  此时接收的是数字 -->
+               <el-tag class="status" :type="item.status|filterType">{{item.status|filterStatus}}</el-tag>
+               <span class="date">{{item.pubdate}}</span>
            </div>
        </div>
        <div class="right">
@@ -59,9 +63,12 @@ export default {
         channel_id: null, // 表示没有任何的类型
         dateRange: [] // 日期范围
       },
-      channels: []// 接收频道数据
+      channels: [], // 接收频道数据
+      list: [],
+      defaultImg: require('../../assets/img/default.jpg')
     }
   },
+
   methods: {
     // 获取频道数据
     getChannels () {
@@ -70,10 +77,38 @@ export default {
       }).then(result => {
         this.channels = result.data.channels
       })
+    },
+
+    getArticles () {
+      this.$axios({
+        url: '/articles'
+      }).then(result => {
+        this.list = result.data.results// 获取文章列表
+      })
     }
   },
   created () {
     this.getChannels()
+    this.getArticles()
+  }, // 过滤器
+  // 注意：局部注册过滤器为 filters
+  filters: {
+    filterStatus (value) {
+      switch (value) {
+        case 0:return '草稿'
+        case 1:return '待审核'
+        case 2:return '审核通过'
+        case 3:return '审核失败'
+      }
+    }, // 根据当前状态的值显示不同的tag标签
+    filterType (value) {
+      switch (value) {
+        case 0:return 'warning' // 草稿
+        case 1:return 'info' // 待审核
+        case 2:return '' // 审核通过
+        case 3:return 'danger' // 审核失败
+      }
+    }
   }
 
 }
