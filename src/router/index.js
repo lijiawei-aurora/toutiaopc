@@ -29,6 +29,10 @@ const routes = [{
   }, { // 素材管理
     path: 'material',
     component: () => import('@/views/material')
+  },
+  { // 内容列表
+    path: 'articles',
+    component: () => import('@/views/articles')
   }]
 }, {
   path: '/login',

@@ -20,13 +20,14 @@
             <!-- 循环生成页面结构 -->
                 <div class='img-list'>
                     <!-- 必须有key -->
-                    <el-card v-for="item in list" :key="item.id" class='img-card'>
-                        <img :src="item.url" alt="">
+                    <el-card v-for="(item,index) in list" :key="item.id" class='img-card'>
+                      <!-- 点击图片 将对话框的dialogVisible设为true就可以弹出 -->
+                        <img :src="item.url" alt="" @click="selectImg(index)">
                         <el-row class="operate" type='flex' align="middle" justify="space-around">
                             <!-- 收藏按钮 -->
-                            <i class='el-icon-star-on'></i>
+                            <i class='el-icon-star-on' @click="collectOrCancel(item)" :style="{color:item.is_collected ? 'red' : 'black'}"></i>
                             <!-- 删除按钮 -->
-                            <i class='el-icon-delete-solid'></i>
+                            <i class='el-icon-delete-solid' @click="deleteMaterial(item)"></i>
                         </el-row>
                     </el-card>
                 </div>
@@ -34,8 +35,8 @@
             <el-tab-pane label='收藏素材' name='collect'>
                  <div class='img-list'>
                     <!-- 必须有key -->
-                    <el-card v-for="item in list" :key="item.id" class='img-card'>
-                        <img :src="item.url" alt="">
+                    <el-card v-for="(item,index) in list" :key="item.id" class='img-card'>
+                        <img :src="item.url" alt="" @click="selectImg(index)">
                     </el-card>
                 </div>
             </el-tab-pane>
@@ -49,6 +50,17 @@
             @current-change="changePage"
             ></el-pagination>
         </el-row>
+        <!-- 通过visible属性true或false控制显示与隐藏 -->
+        <!-- el-dialog 组件是懒加载的  -->
+        <el-dialog :visible='dialogVisible' @close="dialogVisible=false" @opened="openEnd">
+          <!-- 走马灯组件 -->
+          <el-carousel indicator-position="outside" height="400px" ref="myCarousel">
+              <!-- 大图预览当前页的所有图片 幻灯片 -->
+              <el-carousel-item v-for="item in list" :key=item.id >
+                <img :src="item.url" alt="" style="width:100%;height:100%">
+              </el-carousel-item>
+          </el-carousel>
+        </el-dialog>
   </el-card>
 </template>
 
@@ -62,10 +74,14 @@ export default {
         total: 0,
         currentPage: 1,
         pageSize: 8 // 每页条数
-      }
+
+      },
+      dialogVisible: false,
+      imgIndex: -1 // 当前点击的图片的索引
     }
   },
   methods: {
+
     //   上传图片组件的方法
     uploadImg (params) {
       // params.file为要上传的图片文件
@@ -83,27 +99,6 @@ export default {
         this.$message.error('上传素材失败')
       })
     },
-    // 定义一个上传组件的方法
-    // uploadImg (params) {
-    //   //  params.file 就是需要上传的图片文件
-    //   // 接口参数类型要求是 formData
-    //   const data = new FormData() // 实例化一个formData对象
-    //   debugger
-    //   data.append('image', params.file) // 加入文件参数
-
-    //   // 开始发送上传请求了
-    //   this.$axios({
-    //     url: '/user/images', // 请求地址
-    //     method: 'post', // 上传或者新增一般都是post类型
-    //     data // es6简写
-    //   }).then(() => {
-    //     // 如果成功了 我们应该 重新来取数据啊
-    //     this.getMaterial()
-    //   }).catch(() => {
-    //     this.$message.error('上传素材失败')
-    //   })
-    // },
-    //   获取素材数据
     getMaterial () {
       this.$axios({
         url: '/user/images',
@@ -120,6 +115,35 @@ export default {
         this.page.total = result.data.total_count // 全部/收藏素材总数
       })
     },
+    // 收藏或取消收藏
+    collectOrCancel (row) {
+      this.$axios({
+        url: `/user/images/${row.id}`, // row.id为所传的参数
+        method: 'put',
+        data: {
+          collect: !row.is_collected // row.is_collected 若收藏了结果为TRUE 否则为false
+        }
+      }).then(() => {
+        this.getMaterial()
+      }).catch(() => {
+        this.$message.error('操作失败')
+      })
+    },
+    // 删除素材
+    deleteMaterial (row) {
+      this.$confirm('您确定要删除图片吗', '提示').then(() => {
+        // 用户单击确定后进入此
+        this.$axios({
+          url: `/user/images/${row.id}`,
+          method: 'delete'
+
+        }).then(() => {
+          this.getMaterial()
+        }).catch(() => {
+          this.$message.error('删除失败')
+        })
+      })
+    },
     // 切换页签 时触发该方法
     changeTab () {
       this.page.currentPage = 1 // 将当前页码切换成第一页
@@ -129,6 +153,15 @@ export default {
     changePage (newPage) {
       this.page.currentPage = newPage
       this.getMaterial()
+    },
+    openEnd () {
+      // 打开结束
+      this.$refs.myCarousel.setActiveItem(this.imgIndex)
+    },
+    // 点击图片时调用该方法
+    selectImg (index) {
+      this.imgIndex = index
+      this.dialogVisible = true
     }
   },
   created () {
@@ -163,9 +196,7 @@ export default {
             i{
                 font-size:20px;
             }
-            .el-icon-star-on{
-                color:orangered
-            }
+
         }}
 
 }
