@@ -33,6 +33,10 @@ const routes = [{
   { // 内容列表
     path: 'articles',
     component: () => import('@/views/articles')
+  },
+  { // 发布文章
+    path: 'publish/:articleId?', // 此时可以传参也可以不传参 动态路由传参
+    component: () => import('@/views/publish')
   }]
 }, {
   path: '/login',
