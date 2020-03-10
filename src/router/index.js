@@ -7,7 +7,11 @@ import DefaultHome from '@/views/home/default_home'
 // 简写形式，相当于 /src/views/home/index.vue
 Vue.use(VueRouter)
 
-const routes = [{
+const routes = [{ // 404页面  找不到路径的页面均显示这个
+  path: '*', // 匹配任何找不到组件的路由
+  component: () => import('@/views/404')
+},
+{
   path: '/',
   redirect: '/home'
 
@@ -37,6 +41,9 @@ const routes = [{
   { // 发布文章
     path: 'publish/:articleId?', // 此时可以传参也可以不传参 动态路由传参
     component: () => import('@/views/publish')
+  }, { // 用户信息
+    path: 'account',
+    component: () => import('@/views/account')
   }]
 }, {
   path: '/login',

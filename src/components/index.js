@@ -6,12 +6,16 @@ import VueQuillEditor from 'vue-quill-editor'
 import 'quill/dist/quill.core.css'
 import 'quill/dist/quill.snow.css'
 import 'quill/dist/quill.bubble.css'
+import CoverImage from './publish/cover-image'
+import SelectImage from './publish/select-image'
 export default {
   install: function (Vue) {
     // 全局注册
     Vue.component('layout-header', LayoutHeader)
     Vue.component('layout-aside', LayoutAside)
     Vue.component('bread-crumb', BreadCrumb)
+    Vue.component('cover-image', CoverImage)
+    Vue.component('select-image', SelectImage)
     // 注册富文本编辑器
     Vue.use(VueQuillEditor)
   }

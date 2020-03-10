@@ -15,7 +15,7 @@
               <quill-editor  v-model="publishForm.content" style="height:300px" ></quill-editor>
           </el-form-item>
           <el-form-item label="封面" prop="cover" style="margin-top:100px">
-              <el-radio-group v-model="publishForm.cover">
+              <el-radio-group v-model="publishForm.cover.type" @change="changType">
                   <!-- :label中存的是后台的数据 -->
                   <el-radio :label="1">单图</el-radio>
                   <el-radio :label="3">三图</el-radio>
@@ -23,6 +23,8 @@
                   <el-radio :label="-1">自动</el-radio>
               </el-radio-group>
           </el-form-item>
+          <!-- 放置封面组件 -->
+          <cover-image :list="publishForm.cover.images" @changeImg="changeImg"></cover-image>
           <el-form-item label="频道" prop="channel_id">
               <el-select placeholder="请选择频道" v-model="publishForm.channel_id">
                   <!-- 下拉选项 :label为分组的名称，显示的  value选项的值-->
@@ -67,7 +69,43 @@ export default {
       }
     }
   },
+  watch: {
+    // 捕捉路由参数的变化
+    // watch监听data中的数据变化
+    $route: function (to, from) {
+    // 监听$route的变化
+    // to为新路由地址对象，from为旧的路由地址对象
+      if (to.params.articleId) {
+        this.getArticleById(to.params.articleId)
+      } else {
+        this.publishForm = {
+          title: '', // 文章标题
+          content: '', // 文章内容
+          cover: {
+            type: 0, // -1自动  0无图 1单图 3三图
+            images: []// 字符串数组，  对应type  3为三个
+          },
+          channel_id: null// 频道id
+        }
+      }
+    }
+  },
   methods: {
+    // 根据type的改变对images进行控制
+    changType () {
+      if (this.publishForm.cover.type === 1) {
+        this.publishForm.cover.images = ['']
+      } else if (this.publishForm.cover.type === 3) {
+        this.publishForm.cover.images = ['', '', '']
+      } else {
+        this.publishForm.cover.images = []
+      }
+    },
+    // 接收子组件cover-image传递的变量
+    changeImg (url, index) {
+      // splice替换  索引 替换的个数，替换的内容
+      this.publishForm.cover.images.splice(index, 1, url)
+    },
     //   传入的status表示是否为草稿
     publish (status) { // 发布修改草稿/正式文章
       //   this.$refs.myform.validate(isOk => {  //方法一
