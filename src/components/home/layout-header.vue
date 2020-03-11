@@ -35,6 +35,7 @@
 </template>
 
 <script>
+import eventBus from '@/utils/eventBus'// 公共监听
 export default {
   data () {
     return {
@@ -52,19 +53,26 @@ export default {
         localStorage.removeItem('user-token')
         this.$router.push('/login')
       }
+    },
+    // 获取用户个人信息
+    getUserInfo () {
+      this.$axios({
+        url: '/user/profile',
+        headers: {
+        // Authorization: `Bearer ${token}`
+        }, // 放置请求头参数
+        methods: 'get' // 默认为get方法，可省略
+      }).then(result => {
+        this.userInfo = result.data
+      })
     }
+
   },
   created () {
-    const token = localStorage.getItem('user-token')
-    // 获取用户个人信息
-    this.$axios({
-      url: '/user/profile',
-      headers: {
-        Authorization: `Bearer ${token}`
-      }, // 放置请求头参数
-      methods: 'get' // 默认为get方法，可省略
-    }).then(result => {
-      this.userInfo = result.data
+    this.getUserInfo()
+    // 监听用户信息改变
+    eventBus.$on('updateUser', () => {
+      this.getUserInfo()
     })
   }
 }
