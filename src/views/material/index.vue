@@ -65,6 +65,7 @@
 </template>
 
 <script>
+import { getMaterial } from '@/api/material'
 export default {
   data () {
     return {
@@ -99,21 +100,33 @@ export default {
         this.$message.error('上传素材失败')
       })
     },
-    getMaterial () {
-      this.$axios({
-        url: '/user/images',
-        params: {
-          // 若this.activeName===collect 表示点击的为收藏，结果就为true
-          collect: this.activeName === 'collect', // 为false中获取全部，为true是获取收藏
-          page: this.page.currentPage, // 页码
-          per_page: this.page.pageSize // 每页条数
-        },
-        data: {}
-      }).then(result => {
-        // 将返回结果赋给list
-        this.list = result.data.results
-        this.page.total = result.data.total_count // 全部/收藏素材总数
-      })
+    // getMaterial () {
+    //   this.$axios({
+    //     url: '/user/images',
+    //     params: {
+    //       // 若this.activeName===collect 表示点击的为收藏，结果就为true
+    //       collect: this.activeName === 'collect', // 为false中获取全部，为true是获取收藏
+    //       page: this.page.currentPage, // 页码
+    //       per_page: this.page.pageSize // 每页条数
+    //     },
+    //     data: {}
+    //   }).then(result => {
+    //     // 将返回结果赋给list
+    //     this.list = result.data.results
+    //     this.page.total = result.data.total_count // 全部/收藏素材总数
+    //   })
+    // },
+    // 调用接口
+    async getMaterial () {
+      // 此处的getMaterial为接口中的
+      const result = await getMaterial({
+        collect: this.activeName === 'collect', // 为false中获取全部，为true是获取收藏
+        page: this.page.currentPage, // 页码
+        per_page: this.page.pageSize
+      })// 每页条数
+      // 将返回结果赋给list
+      this.list = result.data.results
+      this.page.total = result.data.total_count // 全部/收藏素材总数
     },
     // 收藏或取消收藏
     collectOrCancel (row) {

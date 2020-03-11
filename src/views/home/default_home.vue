@@ -2,9 +2,14 @@
   <div class="demo-image__lazy">
     <el-image v-for="url in urls" :key="url" :src="url" lazy></el-image>
   </div>
+  <!-- 放置图标组件 -->
+<!-- <div class="echarts" ref='myCharts'>
+
+</div> -->
 </template>
 
 <script>
+import ECharts from 'echarts'
 export default {
   data () {
     return {
@@ -18,6 +23,13 @@ export default {
         'https://fuss10.elemecdn.com/2/11/6535bcfb26e4c79b48ddde44f4b6fjpeg.jpeg'
       ]
     }
+  },
+  mounted () {
+    // 进行echart图表的实例化
+    // init 是图表的实例化
+    this.myChart = ECharts.init(this.$refs.myChart)
+    this.myChart.setOption({
+    })
   }
 }
 </script>
@@ -34,6 +46,11 @@ export default {
   margin-bottom: 10px;
   position: relative;
   overflow: hidden;
+}
+
+.echarts{
+width: 600px;
+height: 40px;
 }
 
 </style>

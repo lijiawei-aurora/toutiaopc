@@ -57,6 +57,7 @@ export default {
       this.getComment() // 重新获取评论
     },
     getComment () {
+      this.loading = true // 打开遮罩层
       this.$axios({
         url: '/articles',
         params: { // 用于传get参数
