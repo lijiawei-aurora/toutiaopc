@@ -3,8 +3,9 @@
  <el-row class="layout-header" type="flex" align="middle">
      <!-- 分为两列 -->
      <el-col :span="12" class="left">
-         <i class="el-icon-s-fold"></i>
-         <span>头条</span>
+           <!-- collapse 表示表单是否折叠，默认为false -->
+         <i @click='changeCollapse' :class="{'el-icon-s-fold':!collapse,'el-icon-s-unfold':collapse}"></i>
+         <span>{{status}}导航</span>
      </el-col>
      <el-col class="right" :span="12">
          <el-row type="flex" justify="end" align="middle">
@@ -39,10 +40,21 @@ import eventBus from '@/utils/eventBus'// 公共监听
 export default {
   data () {
     return {
-      userInfo: {} // 用户个人信息
+      userInfo: {}, // 用户个人信息
+      collapse: false,
+      status: '折叠'
+    }
+  },
+  watch: {
+    collapse () { // 监听collapse的改变
+      eventBus.$emit('changeCollapse')
     }
   },
   methods: {
+    changeCollapse () {
+      this.collapse = !this.collapse
+      this.status = this.collapse ? '展开' : '折叠'
+    },
     clickMenu (command) {
       if (command === 'info') {
 
