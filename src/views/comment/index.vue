@@ -38,6 +38,7 @@
 </template>
 
 <script>
+import { getComment, openOrClose } from '@/api/comment'
 export default {
   data () {
     return {
@@ -56,21 +57,16 @@ export default {
       this.page.currentPage = newPage
       this.getComment() // 重新获取评论
     },
-    getComment () {
+    async  getComment () {
       this.loading = true // 打开遮罩层
-      this.$axios({
-        url: '/articles',
-        params: { // 用于传get参数
-          response_type: 'comment', // 控制获取参数的类型
-          page: this.page.currentPage, // 请求的页数 不传也是1
-          per_page: this.page.pageSize // 每页的页数
-
-        }
-      }).then(result => {
-        this.list = result.data.results
-        this.page.total = result.data.total_count // 将总数赋给total
-        this.loading = false
+      const result = await getComment({
+        response_type: 'comment', // 控制获取参数的类型
+        page: this.page.currentPage, // 请求的页数 不传也是1
+        per_page: this.page.pageSize // 每页的页数
       })
+      this.list = result.data.results
+      this.page.total = result.data.total_count // 将总数赋给total
+      this.loading = false
     },
 
     // formatterBool (row, column, cellValue, index) {
@@ -86,68 +82,26 @@ export default {
       // 该函数需要返回一个值 用来显示
       return cellValue ? '正常' : '关闭'
     },
-    // openOrClose (row) {
-    //   // 根据状态调整提示信息
-    //   const mess = row.comment_status ? '关闭' : '打开'
-    //   // $confirm 也支持 promise 点击确定会进入到then 点击取消会进入到catch
-    //   // 提示两个字是标题
-    //   this.$confirm(`是否确定${mess}评论`, '提示').then(() => {
-    //     // 调用打开或者关闭接口
-    //     this.$axios({
-    //       url: '/comments/status', // 请求地址
-    //       method: 'put', // 请求类型
-    //       // query参数
-    //       params: {
-    //         // id的数字太大会自动转换
-    //         // 将BigNumber转为字符串
-    //         article_id: row.id.toString() // 要更改状态的文章id
-    //       },
-    //       data: {
-    //         //  body参数
-    //         allow_comment: !row.comment_status // 是打开还是关闭  此状态和评论状态相反
-    //       }
-    //     }).then(() => {
-    //       //   成功了 提示个消息 然后 重新拉取数据
-    //       this.$message.success(`${mess}评论成功`)
-    //       //  重新拉取数据
-    //       this.getComment() // 调用重新拉取数据的方法
-    //     }).catch(() => {
-    //       //   失败 会进入到catch 显示打开或关闭失败
-    //       this.$message.error(`${mess}评论失败`)
-    //     })
-    //   })
-    // }
-    openOrClose (row) {
+    async  openOrClose (row) {
+      // 根据状态调整提示信息
       const mess = row.comment_status ? '关闭' : '打开'
       // $confirm 也支持 promise 点击确定会进入到then 点击取消会进入到catch
-      this.$confirm(`是否确定${mess}评论`, '提示').then(() => {
-        // 调用打开或者关闭接口
-        this.$axios({
-          url: '/comments/status', // 请求地址
-          method: 'put', // 请求类型
-          // query参数
-          params: {
-            // 为什么评论会失败 就是因为 原来 给你传了 9152 你回传了 9200
-            // 所以我们用大数字包 保证 9152不被转化 就可以使用原来的功能
-            article_id: row.id.toString() // 要求参数的文章id 将 BigNumber类型转化成字符串
-            // 前端传字符串到后端 只要和原数字一致  后端会自动将字符串转成大数字
-            // 只需要保证 id 和传过来的id一致就行
-          },
-          data: {
-            //  body参数
-            allow_comment: !row.comment_status // 是打开还是关闭  此状态和评论状态相反
-          }
-        }).then(() => {
-          //   成功了 提示个消息 然后 重新拉取数据4
-          this.$message.success(`${mess}评论成功`)
-          //  重新拉取数据
-          this.getComment() // 调用重新拉取数据的方法
-        }).catch(() => {
-          //   表示失败了 会进入到catch
-          this.$message.error(`${mess}评论失败`)
-        })
-      })
+      // 提示两个字是标题
+      await this.$confirm(`是否确定${mess}评论`, '提示')
+
+      // 调用打开或者关闭评论
+      await openOrClose(row)
+      try {
+        //   成功了 提示个消息 然后 重新拉取数据
+        this.$message.success(`${mess}评论成功`)
+        //  重新拉取数据
+        this.getComment() // 调用重新拉取数据的方法
+      } catch {
+        //   失败 会进入到catch 显示打开或关闭失败
+        this.$message.error(`${mess}评论失败`)
+      }
     }
+
   },
   // 页面初始化之后调用  获取数据
   created () {

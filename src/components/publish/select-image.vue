@@ -21,6 +21,7 @@
 </template>
 
 <script>
+import { getMaterial, uploadImg } from '@/api/material'
 export default {
   data () {
     return {
@@ -34,18 +35,15 @@ export default {
     }
   },
   methods: {
-    getMaterial () {
-      this.$axios({
-        url: 'user/images',
-        params: {
-          collect: false, // 查询全部素材
-          page: this.page.currentPage,
-          per_page: this.page.pageSize // 每页条数
-        }
-      }).then(result => {
-        this.list = result.data.results
-        this.page.total = result.data.total_count
+    // 获取素材
+    async  getMaterial () {
+      const result = await getMaterial({
+        collect: false, // 查询全部素材
+        page: this.page.currentPage,
+        per_page: this.page.pageSize // 每页条数
       })
+      this.list = result.data.results
+      this.page.total = result.data.total_count
     },
     // 切换页码时触发
     changePage (newPage) {
@@ -56,23 +54,20 @@ export default {
     selectImg (url) {
       // 需将url传给上层组件
     // 自定义事件
-      alert(url)
       this.$emit('selectImg', url)
     },
-    uploadImg (params) {
+    // 上传图片
+    async  uploadImg (params) {
       // params.file为要上传的图片文件
       const data = new FormData() // 实例化一个formData对象
 
       data.append('image', params.file)
-      this.$axios({
-        url: '/user/images',
-        method: 'post', // 上传或新增一般为该类型
-        data// data:data  因为同名，所以省略
-      }).then(result => {
+      const result = await uploadImg(data)
+      try {
         this.selectImg(result.data.url)// 上传成功，重新获取数据
-      }).catch(() => {
+      } catch {
         this.$message.error('上传素材失败')
-      })
+      }
     }
   },
   created () {

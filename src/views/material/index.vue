@@ -65,7 +65,8 @@
 </template>
 
 <script>
-import { getMaterial } from '@/api/material'
+import { getMaterial, uploadImg, collectOrCancel, deleteMaterial } from '@/api/material'
+
 export default {
   data () {
     return {
@@ -82,23 +83,29 @@ export default {
     }
   },
   methods: {
-
     //   上传图片组件的方法
-    uploadImg (params) {
+    async uploadImg (params) {
       // params.file为要上传的图片文件
       const data = new FormData() // 实例化一个formData对象
-
       data.append('image', params.file)
-      debugger
-      this.$axios({
-        url: '/user/images',
-        method: 'post', // 上传或新增一般为该类型
-        data// data:data  因为同名，所以省略
-      }).then(() => {
+      await uploadImg(data)
+      try {
         this.getMaterial() // 上传成功，重新获取数据
-      }).catch(() => {
+      } catch {
         this.$message.error('上传素材失败')
-      })
+      }
+    },
+    // 获取素材
+    async getMaterial () {
+      // 此处的getMaterial为接口中的
+      const result = await getMaterial({
+        collect: this.activeName === 'collect', // 为false中获取全部，为true是获取收藏
+        page: this.page.currentPage, // 页码
+        per_page: this.page.pageSize
+      })// 每页条数
+      // 将返回结果赋给list
+      this.list = result.data.results
+      this.page.total = result.data.total_count // 全部/收藏素材总数
     },
     // getMaterial () {
     //   this.$axios({
@@ -116,46 +123,26 @@ export default {
     //     this.page.total = result.data.total_count // 全部/收藏素材总数
     //   })
     // },
-    // 调用接口
-    async getMaterial () {
-      // 此处的getMaterial为接口中的
-      const result = await getMaterial({
-        collect: this.activeName === 'collect', // 为false中获取全部，为true是获取收藏
-        page: this.page.currentPage, // 页码
-        per_page: this.page.pageSize
-      })// 每页条数
-      // 将返回结果赋给list
-      this.list = result.data.results
-      this.page.total = result.data.total_count // 全部/收藏素材总数
-    },
+
     // 收藏或取消收藏
-    collectOrCancel (row) {
-      this.$axios({
-        url: `/user/images/${row.id}`, // row.id为所传的参数
-        method: 'put',
-        data: {
-          collect: !row.is_collected // row.is_collected 若收藏了结果为TRUE 否则为false
-        }
-      }).then(() => {
+    async  collectOrCancel (row) {
+      await collectOrCancel(row)
+      try {
         this.getMaterial()
-      }).catch(() => {
+      } catch {
         this.$message.error('操作失败')
-      })
+      }
     },
     // 删除素材
-    deleteMaterial (row) {
-      this.$confirm('您确定要删除图片吗', '提示').then(() => {
-        // 用户单击确定后进入此
-        this.$axios({
-          url: `/user/images/${row.id}`,
-          method: 'delete'
-
-        }).then(() => {
-          this.getMaterial()
-        }).catch(() => {
-          this.$message.error('删除失败')
-        })
-      })
+    async deleteMaterial (row) {
+      await this.$confirm('您确定要删除图片吗', '提示')
+      // 用户单击确定后进入此
+      await deleteMaterial(row)
+      try {
+        this.getMaterial()
+      } catch {
+        this.$message.error('删除失败')
+      }
     },
     // 切换页签 时触发该方法
     changeTab () {

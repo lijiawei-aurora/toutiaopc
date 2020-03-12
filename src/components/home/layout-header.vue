@@ -37,6 +37,7 @@
 
 <script>
 import eventBus from '@/utils/eventBus'// 公共监听
+import { getUserInfo } from '@/api/account'
 export default {
   data () {
     return {
@@ -67,16 +68,9 @@ export default {
       }
     },
     // 获取用户个人信息
-    getUserInfo () {
-      this.$axios({
-        url: '/user/profile',
-        headers: {
-        // Authorization: `Bearer ${token}`
-        }, // 放置请求头参数
-        methods: 'get' // 默认为get方法，可省略
-      }).then(result => {
-        this.userInfo = result.data
-      })
+    async  getUserInfo () {
+      const result = await getUserInfo()
+      this.userInfo = result.data
     }
 
   },

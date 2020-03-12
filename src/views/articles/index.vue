@@ -70,6 +70,7 @@
 </template>
 
 <script>
+import { delArticle, getChannels, getArticles } from '@/api/articles'
 export default {
   data () {
     return {
@@ -91,43 +92,32 @@ export default {
 
   methods: {
     // 删除文章
-    delArticle (id) {
-      this.$confirm('您是否确定删除此条数据', '提示').then(() => {
-        // 点击确定后进入then
-        this.$axios({
-          url: `/articles/${id}`,
-          method: 'delete'
-
-        }).then(() => {
-          // 删除成功后  重新加载数据 若直接调用 this.getArticles() 不传参数 会使当前的
-          // 条件都失效了
-          this.changeCondition()
-        }).catch(() => {
-          this.$message.error('删除文章失败')
-        })
-      })
+    async  delArticle (id) {
+      await this.$confirm('您是否确定删除此条数据', '提示')
+      // 点击确定后进入
+      await delArticle(id)
+      try {
+        // 删除成功后  重新加载数据 若直接调用 this.getArticles() 不传参数 会使当前的
+        // 条件都失效了
+        this.changeCondition()
+      } catch {
+        this.$message.error('删除文章失败')
+      }
     },
     changePage (newPage) { // newPage 为当前点击的页码
       this.page.currentPage = newPage
       this.changeCondition()
     },
     // 获取频道数据
-    getChannels () {
-      this.$axios({
-        url: '/channels'
-      }).then(result => {
-        this.channels = result.data.channels
-      })
+    async getChannels () {
+      const result = await getChannels()
+      this.channels = result.data.channels
     },
 
-    getArticles (params) {
-      this.$axios({
-        url: '/articles',
-        params
-      }).then(result => {
-        this.list = result.data.results// 获取文章列表
-        this.page.total = result.data.total_count
-      })
+    async  getArticles (params) {
+      const result = await getArticles(params)
+      this.list = result.data.results// 获取文章列表
+      this.page.total = result.data.total_count
     },
     changeCondition () {
       const params = {

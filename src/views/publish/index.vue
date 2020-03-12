@@ -41,6 +41,7 @@
 </template>
 
 <script>
+import { publish, getChannels, getArticleById } from '@/api/publish'
 export default {
 
   data () {
@@ -107,7 +108,7 @@ export default {
       this.publishForm.cover.images.splice(index, 1, url)
     },
     //   传入的status表示是否为草稿
-    publish (status) { // 发布修改草稿/正式文章
+    async publish (status) { // 发布修改草稿/正式文章
       //   this.$refs.myform.validate(isOk => {  //方法一
       //     if (isOk) {
 
@@ -115,38 +116,27 @@ export default {
       //   })
       // 方法二
       // 手动校验表单 调用validate()方法
-      this.$refs.myForm.validate().then(() => {
-        const { articleId } = this.$route.params // id不为空就是修改，为空就是添加
-        this.$axios({
-          url: articleId ? `/articles/${articleId}` : '/articles',
-          method: articleId ? 'put' : 'post', // 新增数据用post 修改用put
-          params: { draft: status }, // 是否存为草稿  false为不是草稿
-          data: this.publishForm // data中定义的参数
-        }).then(() => {
-          this.$message.success('操作成功')
-          this.$router.push('/home/articles') // 跳转到文章列表
-        }).catch(() => {
-          this.$message.error('操作失败')
-        })
-      })
+      await this.$refs.myForm.validate()
+      const { articleId } = this.$route.params // id不为空就是修改，为空就是添加
+      await publish(articleId, status, this.publishForm)
+      try {
+        this.$message.success('操作成功')
+        this.$router.push('/home/articles') // 跳转到文章列表
+      } catch {
+        this.$message.error('操作失败')
+      }
     },
-    getChannels () {
-      this.$axios({
-        url: '/channels'
-      }).then(result => {
-        this.channels = result.data.channels // 将频道数据赋值给本地
-      })
+    async  getChannels () {
+      const result = await getChannels()
+      this.channels = result.data.channels // 将频道数据赋值给本地
     },
     // 根据id获取文章详情数据
-    getArticleById (id) {
-      this.$axios({
-        url: `/articles/${id}`
-      }).then(result => {
-        // this.title = result.data.title
-        // this.channel_id = result.data.channel_id
-        // this.content = result.data.content
-        this.publishForm = result.data// 将数据赋值给表单数据
-      })
+    async  getArticleById (id) {
+      const result = await getArticleById(id)
+      // this.title = result.data.title
+      // this.channel_id = result.data.channel_id
+      // this.content = result.data.content
+      this.publishForm = result.data// 将数据赋值给表单数据
     }
   },
   //   判断路径是否有文章id

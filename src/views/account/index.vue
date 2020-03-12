@@ -36,6 +36,7 @@
 
 <script>
 import eventBus from '@/utils/eventBus'
+import { saveUser, uploadImg, getUserInfo } from '@/api/account'
 export default {
   data () {
     return {
@@ -57,40 +58,30 @@ export default {
   },
   methods: {
     // 保存用户
-    saveUser () {
+    async saveUser () {
       // 手动校验
-      this.$refs.myForm.validate().then(() => {
-        this.$axios({
-          url: 'user/profile',
-          method: 'patch', // 类型
-          data: this.formData
-        }).then(() => {
-          this.$message.success('保存用户信息成功')
-          eventBus.$emit('updateUser')
-        }).catch(() => {
-          this.$message.error('保存用户信息失败')
-        })
-      })
+      await this.$refs.myForm.validate()
+      await saveUser(this.formData)
+      try {
+        this.$message.success('保存用户信息成功')
+        eventBus.$emit('updateUser')
+      } catch {
+        this.$message.error('保存用户信息失败')
+      }
     },
     // 编辑头像
-    uploadImg (params) {
+    async uploadImg (params) {
       const data = new FormData()
       data.append('photo', params.file) // params.file为选择的地址
-      this.$axios({
-        url: '/user/photo',
-        method: 'patch',
-        data // 要传递的参数
-      }).then(result => {
-        this.formData.photo = result.data.photo
-        eventBus.$emit('updateUser')
-      })
+      const result = await uploadImg(data)
+      this.formData.photo = result.data.photo
+      eventBus.$emit('updateUser')
     },
-    getUserInfo () {
-      this.$axios({
-        url: '/user/profile'
-      }).then(result => {
-        this.formData = result.data
-      })
+    // 获取用户信息
+    async getUserInfo () {
+      const result = await getUserInfo()
+
+      this.formData = result.data
     }
   },
   created () {
